@@ -2,6 +2,40 @@ import os
 import json
 import subprocess
 
+path = "jsc.json"
+
+if __name__ == "__main__":
+	import sys
+
+	args = sys.argv
+	if len(args) > 1:
+		if args[1] in ["-o", "--output"]:
+			path = ""
+			for arg in args[2:]:
+				if arg.startswith('-'):
+					continue
+				path += arg
+
+			try:
+				open(path, 'w+')
+			except FileNotFoundError:
+				print("Destination directory not found.")
+				exit(1)
+			except PermissionError:
+				print("Unable to write in destination directory.")
+				exit(1)
+
+		else:
+			print("Junon Source Control tool for jue")
+			print("" if args[1] in ["-h", "--help"] else f"argument \"{args[1]}\" is unknown")
+			print("\t-h, --help \tDisplay this help message")
+			print("\t-o, --output \tProvide a output path for the json file")
+			exit(1)
+
+
+
+	
+		print(args)
 
 gitstatus = subprocess.Popen(
 	["git", "status", "--porcelain=v2", "--branch"],
@@ -10,8 +44,6 @@ gitstatus = subprocess.Popen(
 stdout, stderr = gitstatus.communicate()
 
 status = stdout.decode('utf-8')
-print(status)
-
 
 j = {
 	"branch": {
@@ -89,4 +121,4 @@ for line in status.split('\n'):
 				j['files']['tracked'].append(file)
 
 
-print(j)
+json.dump(j, open(path, 'w'), indent=2)
